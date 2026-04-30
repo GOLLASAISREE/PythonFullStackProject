@@ -1,18 +1,13 @@
 import os
 from pathlib import Path
-from urllib.parse import urlparse, unquote
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production-ps10-analytics-key')
+SECRET_KEY = 'django-insecure-change-this-in-production-ps10-analytics-key'
 
-DEBUG = os.getenv('DEBUG', 'True').lower() in {'1', 'true', 'yes', 'on'}
+DEBUG = True
 
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.getenv('ALLOWED_HOSTS', '*').split(',')
-    if host.strip()
-]
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -25,15 +20,17 @@ INSTALLED_APPS = [
     'accounts',
 ]
 
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'student_analytics.urls'
@@ -57,40 +54,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'student_analytics.wsgi.application'
 
-DATABASE_URL = os.getenv('DATABASE_URL')
-
-if DATABASE_URL:
-    parsed_url = urlparse(DATABASE_URL)
-    scheme = parsed_url.scheme.lower()
-
-    if scheme in {'postgres', 'postgresql', 'postgresql+psycopg2'}:
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.postgresql',
-                'NAME': unquote(parsed_url.path.lstrip('/')),
-                'USER': unquote(parsed_url.username or ''),
-                'PASSWORD': unquote(parsed_url.password or ''),
-                'HOST': parsed_url.hostname or '',
-                'PORT': parsed_url.port or '5432',
-            }
-        }
-    elif scheme == 'sqlite':
-        database_name = unquote(parsed_url.path.lstrip('/')) or str(BASE_DIR / 'db.sqlite3')
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': database_name,
-            }
-        }
-    else:
-        raise ValueError(f'Unsupported DATABASE_URL scheme: {parsed_url.scheme}')
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'student_analytics_db',
+        'USER': 'postgres',
+        'PASSWORD': 'root',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
+}
 
 AUTH_USER_MODEL = 'accounts.User'
 
@@ -113,14 +86,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STORAGES = {
-    'default': {
-        'BACKEND': 'django.core.files.storage.FileSystemStorage',
-    },
-    'staticfiles': {
-        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
-    },
-}
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
